@@ -1,5 +1,4 @@
-using Catalog.API.Data;
-using Catalog.API.Repositorys;
+using Basket.API.Repositorys;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Catalog.API
+namespace Basket.API
 {
     public class Startup
     {
@@ -29,12 +28,15 @@ namespace Catalog.API
         {
 
             services.AddControllers();
-            services.AddTransient<IProductRepository, ProductRepository>();
-            services.AddScoped<ICatalogContext, CatalogContext>();
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = Configuration.GetValue<string>("CacheSettings:ConnectionString");
+            });
+            services.AddTransient<IBasketRepository, BasketRepository>();
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Catalog.API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Basket.API", Version = "v1" });
             });
         }
 
@@ -45,7 +47,7 @@ namespace Catalog.API
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Catalog.API v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Basket.API v1"));
             }
 
             app.UseRouting();
